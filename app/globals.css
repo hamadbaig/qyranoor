@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #c9a45a;
+  --gold-light: #e8d5a3;
+  --gold-dark: #a07c35;
+  --cream: #faf8f5;
+  --cream-dark: #f5f0ea;
+  --warm-border: #e8ddd3;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6560;
+  --text-muted: #9a9390;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--text-primary);
+  font-family: var(--font-jost), 'Jost', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Luxury scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: #c9a45a44;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Selection */
+::selection {
+  background-color: #c9a45a22;
+  color: #1a1a1a;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@layer components {
+  /* Luxury heading */
+  .heading-luxury {
+    @apply font-serif text-warm-900 tracking-wide;
+    font-feature-settings: "liga" 1, "kern" 1;
+  }
+
+  /* Gold label/tag */
+  .label-gold {
+    @apply text-xs tracking-luxury uppercase font-sans text-gold-600 font-medium;
+  }
+
+  /* Divider */
+  .divider-luxury {
+    @apply border-t border-warm-200 my-8;
+  }
+
+  /* Gold button */
+  .btn-gold {
+    @apply bg-warm-950 text-white font-sans text-sm tracking-widest uppercase px-8 py-4
+           hover:bg-gold transition-colors duration-300 cursor-pointer;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply border border-warm-950 text-warm-950 font-sans text-sm tracking-widest uppercase px-8 py-4
+           hover:bg-warm-950 hover:text-white transition-colors duration-300 cursor-pointer;
+  }
+
+  /* WhatsApp button */
+  .btn-whatsapp {
+    @apply bg-[#25D366] text-white font-sans text-sm tracking-widest uppercase px-8 py-4
+           hover:bg-[#1fbb58] transition-all duration-300 cursor-pointer flex items-center gap-3 justify-center;
+  }
+
+  /* Card luxury */
+  .card-luxury {
+    @apply bg-white border border-warm-200 shadow-luxury;
+  }
+
+  /* Thumbnail active ring */
+  .thumb-active {
+    @apply ring-2 ring-gold ring-offset-1;
+  }
+}
+
+/* Zoom container */
+.zoom-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+.zoom-wrapper img {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: var(--tx, 50%) var(--ty, 50%);
+}
+.zoom-wrapper:hover img {
+  transform: scale(2.2);
+}
+
+/* Silk shimmer on product name */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #c9a45a 0%,
+    #f0d899 30%,
+    #c9a45a 50%,
+    #e8d5a3 70%,
+    #c9a45a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Prose styles for rich description */
+.prose-luxury p {
+  @apply text-warm-600 leading-relaxed mb-4;
+}
+.prose-luxury ul {
+  @apply space-y-2;
+}
+.prose-luxury li {
+  @apply text-warm-600 flex items-start gap-2;
+}
+
+/* Star rating */
+.star-filled {
+  color: #c9a45a;
+  fill: #c9a45a;
+}
+.star-empty {
+  color: #d4c9be;
+  fill: #d4c9be;
+}
+
+/* Review card */
+.review-card {
+  @apply bg-white border border-warm-100 p-6 transition-shadow hover:shadow-luxury;
+}
+
+/* Sticky bar slide-up */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.sticky-bar-enter {
+  animation: slideUp 0.35s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
