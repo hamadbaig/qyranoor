@@ -15,6 +15,9 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
   const [hovered, setHovered] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
 
+  const imgs = product.colors[0]?.images ?? []
+  const imgSrc = imgs[Math.min(imgIdx, Math.max(0, imgs.length - 1))]
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -39,13 +42,15 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
               transition={{ duration: 0.35 }}
               className="absolute inset-0"
             >
-              <Image
-                src={product.colors[0].images[Math.min(imgIdx, product.colors[0].images.length - 1)]}
-                alt={product.name}
-                fill
-                className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
+              {imgSrc && (
+                <Image
+                  src={imgSrc}
+                  alt={product.name}
+                  fill
+                  className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
+              )}
             </motion.div>
           </AnimatePresence>
 

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
+import { UploadButton } from '@/lib/uploadthing'
 
 interface CategoryData {
   name: string
@@ -108,16 +109,29 @@ export default function CategoryForm({ initial, mode }: Props) {
       </div>
 
       <div>
-        <label className={labelCls}>Image URL</label>
-        <input
-          className={inputCls}
-          type="url"
-          value={form.image}
-          onChange={e => set('image', e.target.value)}
-          placeholder="https://images.unsplash.com/..."
-        />
-        {form.image && (
-          <img src={form.image} alt="preview" className="mt-2 h-24 w-40 object-cover rounded-lg border border-gray-200" />
+        <label className={labelCls}>Image</label>
+        {form.image ? (
+          <div className="relative inline-block mt-1">
+            <img src={form.image} alt="preview" className="h-24 w-40 object-cover rounded-lg border border-gray-200" />
+            <button
+              type="button"
+              title="Remove image"
+              onClick={() => set('image', '')}
+              className="absolute -top-1.5 -right-1.5 bg-white rounded-full shadow text-red-400 hover:text-red-600"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <UploadButton
+            endpoint="imageUploader"
+            onClientUploadComplete={res => { if (res[0]) set('image', res[0].ufsUrl) }}
+            onUploadError={err => alert(`Upload failed: ${err.message}`)}
+            appearance={{
+              button: 'bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ut-uploading:opacity-60',
+              allowedContent: 'text-gray-400 text-xs mt-1',
+            }}
+          />
         )}
       </div>
 

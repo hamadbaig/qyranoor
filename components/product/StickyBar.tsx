@@ -54,13 +54,15 @@ export default function StickyBar({ product, selectedColor, selectedSize }: Prop
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
             {/* Thumbnail */}
             <div className="relative w-12 h-14 flex-shrink-0 overflow-hidden bg-warm-100 hidden sm:block">
-              <Image
-                src={selectedColor.images[0]}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="48px"
-              />
+              {selectedColor.images[0] && (
+                <Image
+                  src={selectedColor.images[0]}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                />
+              )}
             </div>
 
             {/* Info */}

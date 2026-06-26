@@ -28,13 +28,19 @@ export default function ShopProductCard({ product, index }: Props) {
       >
         {/* Image */}
         <div className="relative aspect-[3/4] overflow-hidden bg-warm-100 mb-3">
-          <Image
-            src={product.colors[0]?.images[Math.min(imgIdx, (product.colors[0]?.images.length ?? 1) - 1)] ?? ''}
-            alt={product.name}
-            fill
-            className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
+          {(() => {
+            const imgs = product.colors[0]?.images ?? []
+            const src = imgs[Math.min(imgIdx, Math.max(0, imgs.length - 1))]
+            return src ? (
+              <Image
+                src={src}
+                alt={product.name}
+                fill
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            ) : null
+          })()}
 
           {/* Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">

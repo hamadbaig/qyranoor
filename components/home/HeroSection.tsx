@@ -1,25 +1,59 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ArrowRight, ChevronDown } from 'lucide-react'
 
-export default function HeroSection() {
+export interface HeroSettings {
+  badge?: string
+  heading?: string
+  subheading?: string
+  image?: string
+  cta1Text?: string
+  cta1Link?: string
+  whatsappNumber?: string
+  stats?: { num: string; label: string }[]
+}
+
+const DEFAULTS: Required<HeroSettings> = {
+  badge: 'Luxury Modest Fashion',
+  heading: 'Where Modesty Meets Luxury',
+  subheading: 'Premium Nida abayas and modest wear crafted for the modern woman — exquisite fabrics, elegant silhouettes, and timeless grace.',
+  image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920&q=80',
+  cta1Text: 'Shop Collection',
+  cta1Link: '/#collections',
+  whatsappNumber: '923347573726',
+  stats: [
+    { num: '500+', label: 'Happy Customers' },
+    { num: '50+',  label: 'Premium Styles' },
+    { num: '4.9★', label: 'Average Rating' },
+  ],
+}
+
+interface Props { settings?: HeroSettings }
+
+export default function HeroSection({ settings }: Props) {
+  const s = { ...DEFAULTS, ...settings, stats: settings?.stats?.length ? settings.stats : DEFAULTS.stats }
+
+  const headingWords = s.heading.split(/\s+/)
+  const lastWord     = headingWords.pop() || ''
+  const prevWords    = headingWords.join(' ')
+
+  const waText = encodeURIComponent("Hello Qyra Noor, I am interested in your collection.")
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-warm-950">
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920&q=80"
+          src={s.image}
           alt="Qyra Noor — Luxury Modest Fashion"
           fill
           className="object-cover object-center opacity-40"
           priority
           sizes="100vw"
         />
-        {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-warm-950/90 via-warm-950/60 to-warm-950/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-warm-950/80 via-transparent to-warm-950/30" />
       </div>
@@ -44,7 +78,7 @@ export default function HeroSection() {
             className="inline-flex items-center gap-2 mb-6"
           >
             <span className="h-px w-8 bg-gold" />
-            <span className="text-[10px] font-sans tracking-luxury uppercase text-gold">Luxury Modest Fashion</span>
+            <span className="text-[10px] font-sans tracking-luxury uppercase text-gold">{s.badge}</span>
           </motion.div>
 
           {/* Main heading */}
@@ -54,10 +88,9 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.35 }}
             className="font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.05] tracking-wide mb-6"
           >
-            Where Modesty<br />
-            <span className="italic text-gold-300">Meets</span>{' '}
+            {prevWords && <>{prevWords}<br /></>}
             <span className="relative inline-block">
-              Luxury
+              {lastWord}
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
@@ -74,8 +107,7 @@ export default function HeroSection() {
             transition={{ duration: 0.7, delay: 0.55 }}
             className="text-base sm:text-lg font-sans text-white/60 leading-relaxed max-w-xl mb-10"
           >
-            Premium Nida abayas and modest wear crafted for the modern woman —
-            exquisite fabrics, elegant silhouettes, and timeless grace.
+            {s.subheading}
           </motion.p>
 
           {/* CTAs */}
@@ -86,14 +118,14 @@ export default function HeroSection() {
             className="flex flex-wrap gap-4"
           >
             <Link
-              href="/#collections"
+              href={s.cta1Link}
               className="group inline-flex items-center gap-3 bg-gold text-warm-950 font-sans text-xs tracking-widest uppercase px-7 py-4 hover:bg-gold-400 transition-all duration-300"
             >
-              Shop Collection
+              {s.cta1Text}
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
-              href="https://wa.me/923347573726?text=Hello%20Qyra%20Noor%2C%20I%20am%20interested%20in%20your%20collection."
+              href={`https://wa.me/${s.whatsappNumber}?text=${waText}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 border border-white/30 text-white font-sans text-xs tracking-widest uppercase px-7 py-4 hover:bg-white/10 transition-all duration-300"
@@ -112,11 +144,7 @@ export default function HeroSection() {
             transition={{ duration: 0.7, delay: 1.0 }}
             className="flex items-center gap-8 mt-14 pt-10 border-t border-white/10"
           >
-            {[
-              { num: '500+', label: 'Happy Customers' },
-              { num: '50+', label: 'Premium Styles' },
-              { num: '4.9★', label: 'Average Rating' },
-            ].map(stat => (
+            {s.stats.map(stat => (
               <div key={stat.label} className="text-center sm:text-left">
                 <p className="font-serif text-2xl sm:text-3xl text-white">{stat.num}</p>
                 <p className="text-[10px] font-sans tracking-wide uppercase text-white/40 mt-0.5">{stat.label}</p>

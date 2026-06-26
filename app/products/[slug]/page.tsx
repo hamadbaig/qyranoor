@@ -1,13 +1,14 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getProductBySlug, getAllProductSlugs, getRelatedProducts } from '@/lib/products.server'
+import { getProductBySlug, getAllProductSlugs } from '@/lib/products.server'
 import ProductPageClient from '@/components/product/ProductPageClient'
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -45,8 +46,6 @@ export default async function ProductPage({ params }: Props) {
   ])
   if (!product) notFound()
 
-  const related = await getRelatedProducts(product.relatedProductIds ?? [])
-
   return (
     <>
       <script
@@ -78,7 +77,7 @@ export default async function ProductPage({ params }: Props) {
         }}
       />
 
-      <ProductPageClient product={product} relatedProducts={related} />
+      <ProductPageClient product={product} />
     </>
   )
 }

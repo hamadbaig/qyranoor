@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Plus, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { UploadButton } from '@/lib/uploadthing'
 
 interface ColorEntry { name: string; hex: string; images: string[] }
 interface SizeEntry  { label: string; available: boolean; measurements: { chest: string; waist: string; hips: string; length: string } }
@@ -73,6 +74,19 @@ export default function ProductForm({ initial, mode, categories = [] }: Props) {
   const [tab, setTab] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [subcategories, setSubcategories] = useState<{ name: string; slug: string }[]>([])
+  const [loadingSubs, setLoadingSubs] = useState(false)
+
+  useEffect(() => {
+    if (!form.category) { setSubcategories([]); return }
+    const cat = categories.find(c => c.name === form.category)
+    if (!cat) return
+    setLoadingSubs(true)
+    fetch(`/api/subcategories?category=${cat.slug}`)
+      .then(r => r.json())
+      .then(data => { setSubcategories(Array.isArray(data) ? data.map((s: any) => ({ name: s.name, slug: s.slug })) : []) })
+      .finally(() => setLoadingSubs(false))
+  }, [form.category])
 
   const setF = (k: keyof FormData, v: any) => setForm(p => ({ ...p, [k]: v }))
   const setNested = (root: keyof FormData, k: string, v: any) =>
@@ -178,12 +192,32 @@ export default function ProductForm({ initial, mode, categories = [] }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>Category</label>
-                <input className={inp} list="cat-list" value={form.category} onChange={e => setF('category', e.target.value)} placeholder="Open Abaya" />
-                <datalist id="cat-list">{categories.map(c => <option key={c.slug} value={c.name} />)}</datalist>
+                <select
+                  className={inp}
+                  value={form.category}
+                  onChange={e => { setF('category', e.target.value); setF('subcategory', '') }}
+                >
+                  <option value="">Select category…</option>
+                  {categories.map(c => (
+                    <option key={c.slug} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className={lbl}>Subcategory</label>
-                <input className={inp} value={form.subcategory} onChange={e => setF('subcategory', e.target.value)} placeholder="Nida" />
+                <select
+                  className={inp}
+                  value={form.subcategory}
+                  onChange={e => setF('subcategory', e.target.value)}
+                  disabled={!form.category || loadingSubs}
+                >
+                  <option value="">
+                    {loadingSubs ? 'Loading…' : form.category ? 'Select subcategory…' : 'Select category first'}
+                  </option>
+                  {subcategories.map(s => (
+                    <option key={s.slug} value={s.name}>{s.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -250,18 +284,36 @@ export default function ProductForm({ initial, mode, categories = [] }: Props) {
                   </div>
                 </div>
                 <div>
-                  <label className={lbl}>Image URLs (one per line)</label>
-                  {color.images.map((img, ii) => (
-                    <div key={ii} className="flex gap-2 mb-2">
-                      <input className={inp} value={img} placeholder="https://..." onChange={e => { const c = [...form.colors]; c[ci].images[ii] = e.target.value; setF('colors', c) }} />
-                      {color.images.length > 1 && (
-                        <button type="button" onClick={() => { const c = [...form.colors]; c[ci].images = c[ci].images.filter((_, j) => j !== ii); setF('colors', c) }} className="text-red-400 hover:text-red-600 flex-shrink-0"><X size={14} /></button>
-                      )}
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => { const c = [...form.colors]; c[ci].images.push(''); setF('colors', c) }} className="text-xs text-yellow-600 hover:text-yellow-700 flex items-center gap-1 mt-1">
-                    <Plus size={12} /> Add image URL
-                  </button>
+                  <label className={lbl}>Images</label>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {color.images.filter(Boolean).map((img, ii) => (
+                      <div key={ii} className="relative group">
+                        <img src={img} alt="" className="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                        <button
+                          type="button"
+                          title="Remove image"
+                          onClick={() => { const c = [...form.colors]; c[ci].images = c[ci].images.filter((_, j) => j !== ii); setF('colors', c) }}
+                          className="absolute -top-1.5 -right-1.5 bg-white rounded-full shadow text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={res => {
+                      const c = [...form.colors]
+                      const newUrls = res.map(r => r.ufsUrl)
+                      c[ci].images = [...c[ci].images.filter(Boolean), ...newUrls]
+                      setF('colors', c)
+                    }}
+                    onUploadError={err => alert(`Upload failed: ${err.message}`)}
+                    appearance={{
+                      button: 'bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ut-uploading:opacity-60',
+                      allowedContent: 'text-gray-400 text-xs mt-1',
+                    }}
+                  />
                 </div>
               </div>
             ))}

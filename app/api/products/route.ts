@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { connectDB } from '@/lib/mongodb'
 import { ProductModel } from '@/models/Product'
 import { getAllProducts } from '@/lib/products.server'
@@ -67,6 +68,8 @@ export async function POST(request: Request) {
     }
 
     const product = await ProductModel.create(body)
+    revalidatePath('/products')
+    revalidatePath(`/products/${body.slug}`)
     return NextResponse.json(product, { status: 201 })
   } catch (err: any) {
     if (err.code === 11000) return NextResponse.json({ error: 'Duplicate slug or SKU' }, { status: 409 })

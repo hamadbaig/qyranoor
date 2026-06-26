@@ -70,7 +70,7 @@ export default function ProductGallery({ selectedColor, productName, activeImage
       <div className="flex flex-col-reverse lg:flex-row gap-3 lg:gap-4">
         {/* Thumbnails */}
         <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 lg:w-[72px]">
-          {images.map((img, i) => (
+          {images.filter(Boolean).map((img, i) => (
             <motion.button
               key={`${selectedColor.name}-${i}`}
               onClick={() => selectImage(i)}
@@ -122,14 +122,16 @@ export default function ProductGallery({ selectedColor, productName, activeImage
                   transition: 'transform-origin 0ms',
                 } : { transition: 'transform 0.3s ease' }}
               >
-                <Image
-                  src={images[activeIndex]}
-                  alt={`${productName} — ${selectedColor.name}`}
-                  fill
-                  className="object-cover"
-                  priority={activeIndex === 0}
-                  sizes="(max-width: 768px) 100vw, 55vw"
-                />
+                {images[activeIndex] && (
+                  <Image
+                    src={images[activeIndex]}
+                    alt={`${productName} — ${selectedColor.name}`}
+                    fill
+                    className="object-cover"
+                    priority={activeIndex === 0}
+                    sizes="(max-width: 768px) 100vw, 55vw"
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
 

@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
+import mongoose from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
 import { ProductModel } from '@/models/Product'
 import { getAdminUser } from '@/lib/auth.server'
+
+function buildQuery(id: string) {
+  const conditions: object[] = [{ slug: id }, { id }]
+  if (mongoose.Types.ObjectId.isValid(id)) conditions.push({ _id: id })
+  return { $or: conditions }
+}
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
     await connectDB()
-    const product = await ProductModel.findOne({ $or: [{ id }, { slug: id }] }).lean()
+    const product = await ProductModel.findOne(buildQuery(id)).lean()
     if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json(product)
   } catch {
@@ -25,11 +33,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const body = await request.json()
 
     const product = await ProductModel.findOneAndUpdate(
-      { $or: [{ id }, { _id: id }] },
+      buildQuery(id),
       { $set: body },
       { new: true, runValidators: true }
     )
     if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    revalidatePath('/products')
+    revalidatePath(`/products/${product.slug}`)
     return NextResponse.json(product)
   } catch (err: any) {
     if (err.code === 11000) return NextResponse.json({ error: 'Duplicate slug or SKU' }, { status: 409 })
@@ -44,8 +54,10 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
     const { id } = await params
     await connectDB()
-    const product = await ProductModel.findOneAndDelete({ $or: [{ id }, { _id: id }] })
+    const product = await ProductModel.findOneAndDelete(buildQuery(id))
     if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    revalidatePath('/products')
+    revalidatePath(`/products/${product.slug}`)
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })

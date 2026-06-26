@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 
-const ITEMS = [
+const DEFAULT_ITEMS = [
   'Premium Nida Fabric',
   'Handcrafted Quality',
   'WhatsApp Easy Ordering',
@@ -13,8 +13,11 @@ const ITEMS = [
   'Modest & Elegant',
 ]
 
-export default function MarqueeTicker() {
-  const doubled = [...ITEMS, ...ITEMS]
+interface Props { items?: string[] }
+
+export default function MarqueeTicker({ items }: Props) {
+  const list = items?.length ? items : DEFAULT_ITEMS
+  const doubled = [...list, ...list]
 
   return (
     <div className="bg-gold overflow-hidden py-3.5">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,6 +11,8 @@ import { formatPrice } from '@/lib/products'
 function ProductCard({ product }: { product: Product }) {
   const [imgIdx, setImgIdx] = useState(0)
   const firstColor = product.colors[0]
+  const imgs = firstColor?.images ?? []
+  const imgSrc = imgs[Math.min(imgIdx, Math.max(0, imgs.length - 1))]
 
   return (
     <Link href={`/products/${product.slug}`} className="block group">
@@ -28,13 +30,15 @@ function ProductCard({ product }: { product: Product }) {
             transition={{ duration: 0.3 }}
             className="absolute inset-0"
           >
-            <Image
-              src={firstColor.images[Math.min(imgIdx, firstColor.images.length - 1)]}
-              alt={product.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 640px) 50vw, 25vw"
-            />
+            {imgSrc && (
+              <Image
+                src={imgSrc}
+                alt={product.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 640px) 50vw, 25vw"
+              />
+            )}
           </motion.div>
         </AnimatePresence>
 
@@ -81,12 +85,30 @@ function ProductCard({ product }: { product: Product }) {
   )
 }
 
-export default function RelatedProducts({ products }: { products: Product[] }) {
-  const [offset, setOffset] = useState(0)
-  const visible = 4
-  const max = Math.max(0, products.length - visible)
+interface RelatedProps {
+  category: string
+  excludeSlug: string
+}
 
+export default function RelatedProducts({ category, excludeSlug }: RelatedProps) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [offset, setOffset]     = useState(0)
+  const visible = 4
+
+  useEffect(() => {
+    if (!category) return
+    setLoading(true)
+    fetch(`/api/products/related?category=${encodeURIComponent(category)}&exclude=${encodeURIComponent(excludeSlug)}&limit=8`)
+      .then(r => r.json())
+      .then(data => setProducts(Array.isArray(data) ? data : []))
+      .finally(() => setLoading(false))
+  }, [category, excludeSlug])
+
+  if (loading) return null
   if (!products.length) return null
+
+  const max = Math.max(0, products.length - visible)
 
   return (
     <section className="py-12 px-6 bg-cream-dark border-t border-warm-200">
@@ -99,6 +121,7 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
           {max > 0 && (
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setOffset(p => Math.max(0, p - 1))}
                 disabled={offset === 0}
                 className="p-2.5 border border-warm-200 hover:border-warm-400 disabled:opacity-30 transition-colors"
@@ -106,6 +129,7 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
                 <ChevronLeft size={16} className="text-warm-700" />
               </button>
               <button
+                type="button"
                 onClick={() => setOffset(p => Math.min(max, p + 1))}
                 disabled={offset >= max}
                 className="p-2.5 border border-warm-200 hover:border-warm-400 disabled:opacity-30 transition-colors"

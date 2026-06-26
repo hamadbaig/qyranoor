@@ -23,10 +23,9 @@ import { trackProductView } from './RecentlyViewed'
 
 interface Props {
   product: Product
-  relatedProducts: Product[]
 }
 
-export default function ProductPageClient({ product, relatedProducts }: Props) {
+export default function ProductPageClient({ product }: Props) {
   const [selectedColor, setSelectedColor] = useState<ProductColor>(product.colors[0])
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
 
@@ -131,7 +130,7 @@ export default function ProductPageClient({ product, relatedProducts }: Props) {
         <ProductFAQ faqs={product.faqs} />
 
         {/* Related */}
-        <RelatedProducts products={relatedProducts} />
+        <RelatedProducts category={product.category} excludeSlug={product.slug} />
 
         {/* Recently Viewed */}
         <RecentlyViewed currentProductId={product.id} />

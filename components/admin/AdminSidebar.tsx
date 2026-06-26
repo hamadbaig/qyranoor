@@ -3,14 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Package, Tag, Layers, LogOut, ChevronRight, Store
+  LayoutDashboard, Package, Tag, Layers, LogOut, ChevronRight, Store, Home
 } from 'lucide-react'
 
 const NAV = [
-  { label: 'Dashboard',     href: '/admin',              icon: LayoutDashboard },
-  { label: 'Products',      href: '/admin/products',     icon: Package },
-  { label: 'Categories',    href: '/admin/categories',   icon: Tag },
-  { label: 'Subcategories', href: '/admin/subcategories',icon: Layers },
+  { label: 'Dashboard',     href: '/admin',               icon: LayoutDashboard },
+  { label: 'Products',      href: '/admin/products',      icon: Package },
+  { label: 'Categories',    href: '/admin/categories',    icon: Tag },
+  { label: 'Subcategories', href: '/admin/subcategories', icon: Layers },
+  { label: 'Homepage CMS',  href: '/admin/homepage',      icon: Home },
 ]
 
 async function handleLogout() {

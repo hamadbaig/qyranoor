@@ -79,13 +79,15 @@ export default function RecentlyViewed({ currentProductId }: { currentProductId:
                 <div className="relative">
                   <Link href={`/products/${product.slug}`}>
                     <div className="relative aspect-[3/4] overflow-hidden bg-warm-100">
-                      <Image
-                        src={product.colors[0]?.images[0] ?? ''}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-400"
-                        sizes="144px"
-                      />
+                      {product.colors[0]?.images[0] && (
+                        <Image
+                          src={product.colors[0].images[0]}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-400"
+                          sizes="144px"
+                        />
+                      )}
                     </div>
                     <p className="mt-2 text-xs font-sans text-warm-700 leading-tight line-clamp-2 group-hover:text-gold transition-colors">
                       {product.name}

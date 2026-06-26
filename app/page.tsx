@@ -1,4 +1,7 @@
 import { getAllProducts } from '@/lib/products.server'
+import { connectDB } from '@/lib/mongodb'
+import { CategoryModel } from '@/models/Category'
+import { HomepageSettingsModel } from '@/models/HomepageSettings'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import HeroSection from '@/components/home/HeroSection'
@@ -19,20 +22,38 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const products = await getAllProducts()
+  await connectDB()
+  const [products, categoriesRaw, hpSettings] = await Promise.all([
+    getAllProducts(),
+    CategoryModel.find({ isActive: true }).sort({ sortOrder: 1 }).lean<any[]>(),
+    HomepageSettingsModel.findOneAndUpdate(
+      {},
+      {},
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ).lean<any>(),
+  ])
+
+  const categories = categoriesRaw.map((c: any) => ({
+    name: c.name,
+    slug: c.slug,
+    description: c.description ?? '',
+    image: c.image ?? '',
+  }))
+
+  const hp = hpSettings ?? {}
 
   return (
     <>
       <Header variant="dark" />
       <main className="min-h-screen">
-        <HeroSection />
-        <MarqueeTicker />
-        <CollectionGrid />
+        <HeroSection     settings={hp.hero} />
+        <MarqueeTicker   items={hp.marquee?.items} />
+        <CollectionGrid  categories={categories} />
         <FeaturedProducts products={products} />
-        <BrandStory />
-        <WhyUs />
-        <Testimonials />
-        <WhatsAppCTA />
+        <BrandStory      settings={hp.brandStory} />
+        <WhyUs           settings={hp.whyUs} />
+        <Testimonials    settings={hp.testimonials} />
+        <WhatsAppCTA     settings={hp.whatsappCTA} />
       </main>
       <Footer />
     </>
